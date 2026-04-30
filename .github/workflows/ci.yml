@@ -20,8 +20,13 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+      # Skip specs that shell out to real binaries (godep, old gradle)
+      # which aren't installed on stock GitHub runners. These still run
+      # inside the project's Docker image via `./dlf rake spec`.
       - name: Run unit tests
-        run: bundle exec rspec spec
+        run: |
+          bundle exec rspec spec \
+            --exclude-pattern "spec/lib/license_finder/package_managers/go_dep_spec.rb,spec/lib/license_finder/package_managers/gradle_spec.rb,spec/lib/license_finder/scanner_spec.rb"
 
   rubocop:
     name: RuboCop
