@@ -1,0 +1,11 @@
+[requires]
+range-v3/0.10.0
+
+[generators]
+txt
+cmake
+
+[options]
+
+[imports]
+., license* -> ./licenses @ folder=True, ignore_case=True

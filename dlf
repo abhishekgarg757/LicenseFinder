@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Run any command inside the licensefinder Docker image.
+# Mounts $PWD at /scan inside the container.
+set -euo pipefail
+
+IMAGE="${LICENSEFINDER_IMAGE:-abhishekgarg/licensefinder:latest}"
+
+if ! command -v docker > /dev/null 2>&1; then
+  echo "You do not have docker installed. Please install it:" >&2
+  echo "    https://docs.docker.com/engine/install/" >&2
+  exit 1
+fi
+
+if [ $# -eq 0 ]; then
+  exec docker run --rm -v "$PWD":/scan -it "$IMAGE"
+fi
+
+escaped_params=""
+for p in "$@"; do
+  escaped_params="$escaped_params \"$p\""
+done
+
+if [[ $escaped_params == *"&&"* ]]; then
+  command="${escaped_params:2:${#escaped_params}-3}"
+else
+  command="$escaped_params"
+fi
+
+exec docker run --rm -v "$PWD":/scan -it "$IMAGE" /bin/bash -lc "cd /scan && $command"
