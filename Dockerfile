@@ -227,8 +227,10 @@ RUN /opt/rbenv/bin/rbenv install ${RUBY_VERSION} \
 # Trash (Rancher) - legacy Go vendoring
 # ------------------------------------------------------------------
 RUN curl -fsSL https://github.com/rancher/trash/releases/download/v0.2.7/trash-linux_amd64.tar.gz -o /tmp/trash.tar.gz \
-    && tar -xzf /tmp/trash.tar.gz -C /usr/local/bin trash \
-    && rm /tmp/trash.tar.gz
+    && tar -xzf /tmp/trash.tar.gz -C /tmp \
+    && find /tmp -name 'trash*' -type f -exec mv {} /usr/local/bin/trash \; \
+    && chmod +x /usr/local/bin/trash \
+    && rm -f /tmp/trash.tar.gz
 
 # ------------------------------------------------------------------
 # Install license_finder itself
