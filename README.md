@@ -353,7 +353,9 @@ from very old versions, the same migration notes apply:
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) and the long-form
+[`docs/`](docs/README.md) directory for architecture notes, the
+release process, maintenance runbook and roadmap.
 
 ## License
 
