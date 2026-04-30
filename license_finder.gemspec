@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'addressable',  '~> 2.8'
   s.add_development_dependency 'capybara',     '~> 3.40'
   s.add_development_dependency 'cocoapods',    '>= 1.15' if RUBY_PLATFORM.match?(/darwin/)
-  s.add_development_dependency 'fakefs',       '~> 2.5'
+  s.add_development_dependency 'fakefs',       '~> 3.2'
   s.add_development_dependency 'mime-types',   '~> 3.6'
   s.add_development_dependency 'pry',          '~> 0.14'
   s.add_development_dependency 'rake',         '~> 13.2'
