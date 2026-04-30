@@ -217,6 +217,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && git clone --depth=1 https://github.com/rbenv/rbenv.git /opt/rbenv \
     && git clone --depth=1 https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
 ENV PATH=/opt/rbenv/bin:/opt/rbenv/shims:$PATH
+ENV RBENV_ROOT=/opt/rbenv
 RUN /opt/rbenv/bin/rbenv install ${RUBY_VERSION} \
     && /opt/rbenv/bin/rbenv global ${RUBY_VERSION} \
     && /opt/rbenv/shims/gem update --system --no-document \
