@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.version     = version
 
   s.authors = ['Abhishek Garg']
-  s.email   = ['abhishekgarg@users.noreply.github.com']
-  s.homepage = 'https://github.com/abhishekgarg/licensefinder'
+  s.email   = ['abhishekgarg757@users.noreply.github.com']
+  s.homepage = 'https://github.com/abhishekgarg757/licensefinder'
   s.summary  = "Audit the OSS licenses of your application's dependencies."
 
   s.description = <<-DESCRIPTION
@@ -22,11 +22,11 @@ Gem::Specification.new do |s|
   s.license = 'MIT'
 
   s.metadata = {
-    'bug_tracker_uri'   => 'https://github.com/abhishekgarg/licensefinder/issues',
-    'changelog_uri'     => 'https://github.com/abhishekgarg/licensefinder/blob/main/CHANGELOG.md',
-    'documentation_uri' => 'https://github.com/abhishekgarg/licensefinder/blob/main/README.md',
-    'homepage_uri'      => 'https://github.com/abhishekgarg/licensefinder',
-    'source_code_uri'   => 'https://github.com/abhishekgarg/licensefinder',
+    'bug_tracker_uri'   => 'https://github.com/abhishekgarg757/licensefinder/issues',
+    'changelog_uri'     => 'https://github.com/abhishekgarg757/licensefinder/blob/main/CHANGELOG.md',
+    'documentation_uri' => 'https://github.com/abhishekgarg757/licensefinder/blob/main/README.md',
+    'homepage_uri'      => 'https://github.com/abhishekgarg757/licensefinder',
+    'source_code_uri'   => 'https://github.com/abhishekgarg757/licensefinder',
     'rubygems_mfa_required' => 'true'
   }
 

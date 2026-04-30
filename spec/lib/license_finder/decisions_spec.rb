@@ -454,7 +454,7 @@ module LicenseFinder
           expect { subject.inherit_from('./config/inherit.yml') }
               .to raise_error('The decisions file seems to have whitelist/blacklist keys which are deprecated. ' \
                               'Please replace them with permit/restrict respectively and try again. ' \
-                              'See https://github.com/abhishekgarg/licensefinder/blob/main/CHANGELOG.md for upgrade notes.')
+                              'See https://github.com/abhishekgarg757/licensefinder/blob/main/CHANGELOG.md for upgrade notes.')
         end
       end
 
@@ -465,7 +465,7 @@ module LicenseFinder
           expect { subject.inherit_from('./config/inherit.yml') }
               .to raise_error('The decisions file seems to have whitelist/blacklist keys which are deprecated. ' \
                               'Please replace them with permit/restrict respectively and try again. ' \
-                              'See https://github.com/abhishekgarg/licensefinder/blob/main/CHANGELOG.md for upgrade notes.')
+                              'See https://github.com/abhishekgarg757/licensefinder/blob/main/CHANGELOG.md for upgrade notes.')
         end
       end
     end

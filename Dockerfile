@@ -5,7 +5,7 @@ FROM ubuntu:24.04
 
 LABEL org.opencontainers.image.title="licensefinder" \
       org.opencontainers.image.description="Audit the OSS licenses of your application's dependencies." \
-      org.opencontainers.image.source="https://github.com/abhishekgarg/licensefinder" \
+      org.opencontainers.image.source="https://github.com/abhishekgarg757/licensefinder" \
       org.opencontainers.image.licenses="MIT"
 
 ENV DEBIAN_FRONTEND=noninteractive \

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-04-30
 
 First release of `licensefinder` under the new maintainer
-([@abhishekgarg](https://github.com/abhishekgarg)). This project is a
+([@abhishekgarg757](https://github.com/abhishekgarg757)). This project is a
 continuation of the unmaintained
 [`pivotal/LicenseFinder`](https://github.com/pivotal/LicenseFinder) gem.
 
@@ -27,8 +27,8 @@ continuation of the unmaintained
   replacing the previous Concourse / AppVeyor pipelines.
 
 ### Changed
-- Repository moved to `https://github.com/abhishekgarg/licensefinder`.
-- Default Docker image renamed to `abhishekgarg/licensefinder`.
+- Repository moved to `https://github.com/abhishekgarg757/licensefinder`.
+- Default Docker image renamed to `abhishekgarg757/licensefinder`.
 - Documentation rewritten to reflect the new home and tooling.
 
 ### Removed

@@ -309,7 +309,7 @@ module LicenseFinder
       if (list_of_actions & %i[whitelist blacklist]).any?
         raise 'The decisions file seems to have whitelist/blacklist keys which are deprecated. ' \
               'Please replace them with permit/restrict respectively and try again. ' \
-              'See https://github.com/abhishekgarg/licensefinder/blob/main/CHANGELOG.md for upgrade notes.'
+              'See https://github.com/abhishekgarg757/licensefinder/blob/main/CHANGELOG.md for upgrade notes.'
       end
 
       (actions || []).each do |action, *args|

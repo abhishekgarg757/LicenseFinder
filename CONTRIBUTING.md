@@ -4,7 +4,7 @@ Thanks for your interest in contributing to `licensefinder`!
 
 ## TL;DR
 
-* Fork the project from <https://github.com/abhishekgarg/licensefinder>.
+* Fork the project from <https://github.com/abhishekgarg757/licensefinder>.
 * Create a feature branch off `main`.
 * Make your feature addition or bug fix. Please make sure there is appropriate
   test coverage.
@@ -39,8 +39,8 @@ bundle exec rake features
 ## Building the Docker image locally
 
 ```sh
-docker build -t abhishekgarg/licensefinder:dev .
-docker run -v "$PWD":/scan -it abhishekgarg/licensefinder:dev /bin/bash -l
+docker build -t abhishekgarg757/licensefinder:dev .
+docker run -v "$PWD":/scan -it abhishekgarg757/licensefinder:dev /bin/bash -l
 ```
 
 `-v "$PWD":/scan` mounts your current working directory inside the

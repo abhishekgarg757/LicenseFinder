@@ -3,7 +3,7 @@
 # Mounts $PWD at /scan inside the container.
 set -euo pipefail
 
-IMAGE="${LICENSEFINDER_IMAGE:-abhishekgarg/licensefinder:latest}"
+IMAGE="${LICENSEFINDER_IMAGE:-abhishekgarg757/licensefinder:latest}"
 
 if ! command -v docker > /dev/null 2>&1; then
   echo "You do not have docker installed. Please install it:" >&2

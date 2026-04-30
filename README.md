@@ -1,7 +1,7 @@
 # licensefinder
 
-[![CI](https://github.com/abhishekgarg/licensefinder/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekgarg/licensefinder/actions/workflows/ci.yml)
-[![Docker Image](https://img.shields.io/docker/pulls/abhishekgarg/licensefinder.svg)](https://hub.docker.com/r/abhishekgarg/licensefinder)
+[![CI](https://github.com/abhishekgarg757/licensefinder/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekgarg757/licensefinder/actions/workflows/ci.yml)
+[![Docker Image](https://img.shields.io/docker/pulls/abhishekgarg757/licensefinder.svg)](https://hub.docker.com/r/abhishekgarg757/licensefinder)
 [![Gem Version](https://badge.fury.io/rb/license_finder.svg)](https://rubygems.org/gems/license_finder)
 
 `licensefinder` works with your package managers to find dependencies,
@@ -9,11 +9,11 @@ detect the licenses of the packages in them, compare those licenses
 against a user-defined list of permitted licenses, and give you an
 actionable exception report.
 
-* Source: <https://github.com/abhishekgarg/licensefinder>
-* Docker image: [`abhishekgarg/licensefinder`](https://hub.docker.com/r/abhishekgarg/licensefinder)
+* Source: <https://github.com/abhishekgarg757/licensefinder>
+* Docker image: [`abhishekgarg757/licensefinder`](https://hub.docker.com/r/abhishekgarg757/licensefinder)
   * the Docker image contains every package manager needed to run
     `license_finder` against any supported project type.
-* Issues / support: <https://github.com/abhishekgarg/licensefinder/issues>
+* Issues / support: <https://github.com/abhishekgarg757/licensefinder/issues>
 
 > This is a maintained continuation of the original
 > [`pivotal/LicenseFinder`](https://github.com/pivotal/LicenseFinder)
@@ -65,7 +65,7 @@ adding the following to your `.pre-commit-config.yaml`:
 
 ```yaml
 repos:
-  - repo: https://github.com/abhishekgarg/licensefinder
+  - repo: https://github.com/abhishekgarg757/licensefinder
     rev: v1.0.0 # You probably want the latest tag.
     hooks:
       - id: license-finder

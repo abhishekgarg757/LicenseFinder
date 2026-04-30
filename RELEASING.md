@@ -19,8 +19,8 @@ Releases are cut from `main`.
      (configure the `license_finder` gem on RubyGems to trust this
      repository's `release-gem.yml` workflow).
    * [`docker-publish.yml`](.github/workflows/docker-publish.yml) builds
-     and pushes `abhishekgarg/licensefinder:X.Y.Z`,
-     `abhishekgarg/licensefinder:X.Y` and
-     `abhishekgarg/licensefinder:latest` to Docker Hub.
+     and pushes `abhishekgarg757/licensefinder:X.Y.Z`,
+     `abhishekgarg757/licensefinder:X.Y` and
+     `abhishekgarg757/licensefinder:latest` to Docker Hub.
 
 You can also manually run the workflows from the Actions tab.
