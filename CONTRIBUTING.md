@@ -1,122 +1,111 @@
 # Contributing
 
+Thanks for your interest in contributing to `licensefinder`!
+
 ## TL;DR
 
-* Fork the project from https://github.com/pivotal/LicenseFinder
-* Create a feature branch.
-* Make your feature addition or bug fix. Please make sure there is appropriate test coverage.
-* Rebase on top of master.
-* Send a pull request with commit messages tagged with an entry specified here: https://keepachangelog.com/en/1.0.0/.
+* Fork the project from <https://github.com/abhishekgarg/licensefinder>.
+* Create a feature branch off `main`.
+* Make your feature addition or bug fix. Please make sure there is appropriate
+  test coverage.
+* Rebase on top of `main`.
+* Open a pull request. Please add a `CHANGELOG.md` entry following the
+  [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) convention.
 
 ## Running Tests
 
-You can use the [LicenseFinder docker image](https://hub.docker.com/r/licensefinder/license_finder/) to run the tests by using the `dlf` script.
-There are 2 sets of tests to run in order to confirm that License Finder is working as intended:
+The easiest way to get a fully provisioned environment with every supported
+package manager already installed is to use the project's Docker image.
 
-```
+```sh
 ./dlf rake spec
 ./dlf bundle exec rake features
 ```
 
-The `spec` task runs all the unit test and the `features` task will run all the feature test.
-Note that the feature test needs to be wrapped in `bundle exec`, or else it
-will use the gem version installed inside the docker image.
+The `spec` task runs all unit tests; the `features` task runs the
+end-to-end feature tests. Feature tests must be wrapped in `bundle exec`
+so they use the gem from your working tree rather than the gem already
+installed inside the image.
 
-## Useful Tips
+You can also run the suite directly on your machine as long as you have
+Ruby 3.1 or newer and the relevant package managers installed:
 
-To build the docker image simply call `docker build .` or explicitly pass the `Dockerfile`. Prebuilt versions of the
-dockerfile can also be found on [Dockerhub](https://hub.docker.com/r/licensefinder/license_finder/tags/).
-
-To launch the docker image and interact with it via bash:
+```sh
+bundle install
+bundle exec rake spec
+bundle exec rake features
 ```
-docker run -v $PWD:/scan -it licensefinder/license_finder /bin/bash -l
 
+## Building the Docker image locally
+
+```sh
+docker build -t abhishekgarg/licensefinder:dev .
+docker run -v "$PWD":/scan -it abhishekgarg/licensefinder:dev /bin/bash -l
 ```
-`-v $PWD:/scan` will mount the current working directory to the /scan path.
+
+`-v "$PWD":/scan` mounts your current working directory inside the
+container at `/scan`, which is also the working directory used by the
+`dlf` helper script.
 
 ## Adding Package Managers
 
-There are a few steps to adding a new package manager.
-The main things which need to be implemented are mentioned in [Package Manager](https://github.com/pivotal/LicenseFinder/blob/master/lib/license_finder/package_manager.rb).
+The behaviour required of a package manager is documented in
+[`lib/license_finder/package_manager.rb`](lib/license_finder/package_manager.rb).
 
-[Here](https://github.com/pivotal/LicenseFinder/compare/v2.0.0...v2.0.1) is how
-support was added for `rebar`, an `erlang` package manager.
+Each package manager has matching unit and feature tests. Good
+references are:
 
-There are feature tests and unit tests for each currently supported package manager.
-* [Feature test example](https://github.com/pivotal/LicenseFinder/blob/master/features/features/package_managers/gvt_spec.rb)
-* [Unit test example](https://github.com/pivotal/LicenseFinder/blob/master/spec/lib/license_finder/package_managers/gvt_spec.rb)
+* Feature tests: [`features/features/package_managers`](features/features/package_managers)
+* Unit tests: [`spec/lib/license_finder/package_managers`](spec/lib/license_finder/package_managers)
 
 ## Adding Licenses
 
-Add new licenses to `lib/license_finder/license/definitions.rb`.  There are
-existing tools for matching licenses; see, for example, the MIT license, which
-can be detected in many different ways.
-
+Add new licenses to
+[`lib/license_finder/license/definitions.rb`](lib/license_finder/license/definitions.rb).
+The MIT license is a good example of a definition that supports multiple
+matching strategies.
 
 ## Adding Reports
 
 If you need `license_finder` to output additional package data, consider
-submitting a pull request which adds new columns to
-`lib/license_finder/reports/csv_report.rb`.
+opening a pull request that adds new columns to
+[`lib/license_finder/reports/csv_report.rb`](lib/license_finder/reports/csv_report.rb).
 
-It is also possible to generate a custom report from an ERB template.  Use this
-[example](https://github.com/pivotal/LicenseFinder/blob/master/examples/custom_erb_template.rb) as a starting
-point.  These reports will have access to the helpers in
-[`LicenseFinder::ErbReport`](https://github.com/pivotal/LicenseFinder/blob/master/lib/license_finder/reports/erb_report.rb).
-
-If you need a report with more detailed data or in a different format, we
-recommend writing a custom ruby script.  This
-[example](https://github.com/pivotal/LicenseFinder/blob/master/examples/extract_license_data.rb) will get you
-started.
-
-If you come up with something useful, consider posting it to the Google Group
-[license-finder@googlegroups.com](license-finder@googlegroups.com).
-
+You can also generate a custom report from an ERB template; see
+[`examples/custom_erb_template.rb`](examples/custom_erb_template.rb)
+as a starting point. These reports have access to the helpers in
+[`LicenseFinder::ErbReport`](lib/license_finder/reports/erb_report.rb).
 
 ## Development Dependencies
 
-To successfully run the test suite, you will need the following installed:
-- NPM (requires Node)
-- Yarn (requires Node)
-- PNPM (requires Node)
-- Bower (requires Node and NPM)
-- Maven (requires Java)
-- Gradle (requires Java)
-- Pip (requires python)
-- Rebar (requires erlang)
-- GoDep, GoWorkspace, govendor, Glide, Dep, and Gvt (requires golang)
-- CocoaPods (requires ruby)
-- Bundler (requires ruby)
-- Carthage (requires homebrew)
-- Mix (requires Elixir)
+To run the full test suite on your machine you will need the following
+installed:
+
+- Node.js, NPM, Yarn, PNPM, Bower
+- Java, Maven, Gradle
+- Python 3, pip
+- Erlang, Rebar3, Elixir/Mix
+- Go (modules and legacy GOPATH tooling: GoDep, Gvt, govendor, Glide, Trash)
+- CocoaPods (Ruby)
+- Bundler
+- Carthage
 - Conan
-- NuGet
-- dotnet
-- Conda (requires python)
+- NuGet, .NET SDK
+- Conda
+- Cargo (Rust)
+- Composer (PHP)
+- Swift / Swift Package Manager
+- Flutter
 
-The [LicenseFinder docker image](https://hub.docker.com/r/licensefinder/license_finder/) already contains these dependencies.
+The project's Docker image already contains all of these.
 
-If you run `rake check_dependencies`, you'll see exactly which package managers you're missing.
+Run `rake check_dependencies` to see which package managers are missing
+on your system.
 
-### Python
+## Code Style
 
-For the python dependency tests you will want to have virtualenv
-installed, to allow pip to work without sudo. For more details, see
-this [post on virtualenv][].
+The project uses RuboCop. Run it with:
 
-  [post on virtualenv]: http://hackercodex.com/guide/python-development-environment-on-mac-osx/#virtualenv
-
-You'll need a pip version >= 6.0.
-
-### JRuby
-
-If you're running the test suite with jruby, you're probably going to
-want to set up some environment variables:
-
+```sh
+bundle exec rake rubocop
 ```
-JAVA_OPTS='-client -XX:+TieredCompilation -XX:TieredStopAtLevel=1' JRUBY_OPTS='-J-Djruby.launch.inproc=true'
-```
-
-### Gradle
-
-You'll need a gradle version >= 1.8.

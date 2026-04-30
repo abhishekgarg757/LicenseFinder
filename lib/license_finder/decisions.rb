@@ -307,7 +307,9 @@ module LicenseFinder
       list_of_actions = (actions || []).map(&:first)
 
       if (list_of_actions & %i[whitelist blacklist]).any?
-        raise 'The decisions file seems to have whitelist/blacklist keys which are deprecated. Please replace them with permit/restrict respectively and try again! More info - https://github.com/pivotal/LicenseFinder/commit/a40b22fda11b3a0efbb3c0a021381534bc998dd9'
+        raise 'The decisions file seems to have whitelist/blacklist keys which are deprecated. ' \
+              'Please replace them with permit/restrict respectively and try again. ' \
+              'See https://github.com/abhishekgarg/licensefinder/blob/main/CHANGELOG.md for upgrade notes.'
       end
 
       (actions || []).each do |action, *args|

@@ -1,275 +1,240 @@
-FROM ubuntu:jammy
+# syntax=docker/dockerfile:1.7
+# licensefinder all-in-one image. Provides Ruby + every supported
+# package manager so that `license_finder` can scan any project.
+FROM ubuntu:24.04
+
+LABEL org.opencontainers.image.title="licensefinder" \
+      org.opencontainers.image.description="Audit the OSS licenses of your application's dependencies." \
+      org.opencontainers.image.source="https://github.com/abhishekgarg/licensefinder" \
+      org.opencontainers.image.licenses="MIT"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8 \
+    TZ=Etc/UTC \
+    COMPOSER_ALLOW_SUPERUSER=1
+
+# Toolchain versions
+ENV RUBY_VERSION=3.3.5 \
+    NODE_MAJOR=22 \
+    GO_VERSION=1.23.2 \
+    GRADLE_VERSION=8.10.2 \
+    SBT_VERSION=1.10.2 \
+    JDK_MAJOR=21 \
+    DOTNET_CHANNEL=8.0 \
+    FLUTTER_VERSION=3.24.3 \
+    SWIFT_VERSION=swift-5.10.1-RELEASE \
+    SWIFT_BRANCH=swift-5.10.1-release \
+    SWIFT_PLATFORM=ubuntu24.04 \
+    CONAN_VERSION=1.66.0
 
 WORKDIR /tmp
 
-# Versioning
-ENV PIP3_INSTALL_VERSION 20.0.2
-ENV GO_LANG_VERSION 1.17.13
-ENV SBT_VERSION 1.3.3
-ENV GRADLE_VERSION 5.6.4
-ENV RUBY_VERSION 3.2.3
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# ------------------------------------------------------------------
+# Base OS packages
+# ------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        apt-utils \
+        bzr \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        gnupg2 \
+        locales \
+        software-properties-common \
+        tzdata \
+        unzip \
+        wget \
+        zip \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
 
-# programs needed for building
-RUN apt -q update && apt install -y \
-    build-essential \
-    curl \
-    unzip \
-    wget \
-    gnupg2 \
-    apt-utils \
-    software-properties-common \
-    bzr && \
-    rm -rf /var/lib/apt/lists/*
+# ------------------------------------------------------------------
+# Node.js (NodeSource), Yarn, pnpm, Bower
+# ------------------------------------------------------------------
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g yarn pnpm bower \
+    && echo '{ "allow_root": true }' > /root/.bowerrc
 
-RUN add-apt-repository ppa:git-core/ppa && \
-    apt -q update && apt install -y git && rm -rf /var/lib/apt/lists/*
+# ------------------------------------------------------------------
+# OpenJDK 21 + Maven
+# ------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        openjdk-${JDK_MAJOR}-jdk-headless \
+        maven \
+    && rm -rf /var/lib/apt/lists/*
+ENV JAVA_HOME=/usr/lib/jvm/java-${JDK_MAJOR}-openjdk-amd64
+ENV PATH=$JAVA_HOME/bin:$PATH
 
-# install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt -q update && apt install -y nodejs && rm -rf /var/lib/apt/lists/*
+# ------------------------------------------------------------------
+# Gradle
+# ------------------------------------------------------------------
+RUN curl -fsSL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o gradle.zip \
+    && unzip -q gradle.zip -d /opt \
+    && ln -s /opt/gradle-${GRADLE_VERSION} /opt/gradle \
+    && rm gradle.zip
+ENV PATH=/opt/gradle/bin:$PATH
 
-# install yarn
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-    apt -q update && apt install -y yarn && rm -rf /var/lib/apt/lists/*
+# ------------------------------------------------------------------
+# SBT
+# ------------------------------------------------------------------
+RUN curl -fsSL "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" -o /tmp/sbt.tgz \
+    && mkdir -p /opt/sbt \
+    && tar -xzf /tmp/sbt.tgz -C /opt/sbt --strip-components=1 \
+    && ln -s /opt/sbt/bin/sbt /usr/local/bin/sbt \
+    && rm /tmp/sbt.tgz
 
-# install bower
-RUN npm install -g bower && \
-    echo '{ "allow_root": true }' > /root/.bowerrc
+# ------------------------------------------------------------------
+# Go
+# ------------------------------------------------------------------
+RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" -o /tmp/go.tar.gz \
+    && tar -C /opt -xzf /tmp/go.tar.gz \
+    && rm /tmp/go.tar.gz
+ENV GOROOT=/opt/go GOPATH=/gopath PATH=/opt/go/bin:/gopath/bin:$PATH
+RUN mkdir -p $GOPATH \
+    && go install github.com/tools/godep@latest \
+    && go install github.com/FiloSottile/gvt@latest \
+    && go install github.com/kardianos/govendor@latest \
+    && go clean -cache
 
-# install pnpm
-RUN npm install -g pnpm && \
-    pnpm version
+# ------------------------------------------------------------------
+# Python (Ubuntu 24.04 ships Python 3.12)
+# ------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 \
+        python3-dev \
+        python3-pip \
+        python3-venv \
+        pipx \
+    && rm -rf /var/lib/apt/lists/*
 
-# install jdk 12
-RUN curl -L -o openjdk12.tar.gz https://download.java.net/java/GA/jdk12.0.2/e482c34c86bd4bf8b56c0b35558996b9/10/GPL/openjdk-12.0.2_linux-x64_bin.tar.gz && \
-    tar xvf openjdk12.tar.gz && \
-    rm openjdk12.tar.gz && \
-    mv jdk-12.0.2 /opt/ && \
-    rm /opt/jdk-12.0.2/lib/src.zip
-ENV JAVA_HOME=/opt/jdk-12.0.2
-ENV PATH=$PATH:$JAVA_HOME/bin
-RUN java -version
+# pip on Noble is PEP 668 marked, install conan + pipenv with pipx
+RUN pipx ensurepath \
+    && pipx install --pip-args="--upgrade" "conan==${CONAN_VERSION}" \
+    && pipx install pipenv
+ENV PATH=/root/.local/bin:$PATH
 
-# install rebar3
-RUN curl -o rebar3 https://s3.amazonaws.com/rebar3/rebar3 && \
-    chmod +x rebar3 && \
-    mv rebar3 /usr/local/bin/rebar3
+# ------------------------------------------------------------------
+# rebar3
+# ------------------------------------------------------------------
+RUN curl -fsSL https://s3.amazonaws.com/rebar3/rebar3 -o /usr/local/bin/rebar3 \
+    && chmod +x /usr/local/bin/rebar3
 
-# install and update python and python-pip
-RUN apt -q update && apt install -y python3-pip && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3 -m pip install pip==$PIP3_INSTALL_VERSION --upgrade
+# ------------------------------------------------------------------
+# Erlang + Elixir
+# ------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        erlang \
+        elixir \
+    && rm -rf /var/lib/apt/lists/*
 
-# install maven
-RUN apt -q update && apt install -y maven && \
-    rm -rf /var/lib/apt/lists/*
+# ------------------------------------------------------------------
+# Rust (rustup, latest stable)
+# ------------------------------------------------------------------
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
+ENV PATH=/root/.cargo/bin:$PATH
 
-# install sbt
-RUN mkdir -p /usr/local/share/sbt-launcher-packaging && \
-    curl \
-    --retry 3 \
-    --retry-delay 15 \
-    --location "https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz" \
-    --output "/tmp/sbt-${SBT_VERSION}.tgz" && \
-    tar -xzf "/tmp/sbt-${SBT_VERSION}.tgz" -C /usr/local/share/sbt-launcher-packaging --strip-components=1 && \
-    ln -s /usr/local/share/sbt-launcher-packaging/bin/sbt /usr/local/bin/sbt && \
-    rm -f "/tmp/sbt-${SBT_VERSION}.tgz"
+# ------------------------------------------------------------------
+# .NET SDK (NuGet via mono)
+# ------------------------------------------------------------------
+RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -o /tmp/ms.deb \
+    && dpkg -i /tmp/ms.deb \
+    && rm /tmp/ms.deb \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends dotnet-sdk-${DOTNET_CHANNEL} \
+    && rm -rf /var/lib/apt/lists/*
 
-# install gradle
-RUN curl -L -o gradle.zip https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip && \
-    unzip -q gradle.zip && \
-    rm gradle.zip && \
-    mv gradle-$GRADLE_VERSION /root/gradle
-ENV PATH=/root/gradle/bin:$PATH
+# nuget.exe via mono (mono-complete may be unavailable on noble; install runtime)
+RUN apt-get update && apt-get install -y --no-install-recommends mono-runtime mono-devel ca-certificates-mono \
+    && curl -fsSL https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o /usr/local/bin/nuget.exe \
+    && rm -rf /var/lib/apt/lists/* || true
 
-#install go
-WORKDIR /go
-RUN wget https://storage.googleapis.com/golang/go$GO_LANG_VERSION.linux-amd64.tar.gz -O go.tar.gz && tar --strip-components=1 -xf go.tar.gz && rm -f go.tar.gz
-ENV GOROOT /go
-ENV PATH=$PATH:/go/bin
+# ------------------------------------------------------------------
+# PHP + Composer
+# ------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        php-cli php-mbstring php-xml php-zip php-curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://getcomposer.org/installer -o composer-setup.php \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && rm composer-setup.php
 
-# godep is now required for license_finder to work for project that are still managed with GoDep
-ENV GOROOT=/go
-ENV GOPATH=/gopath
-ENV PATH=$PATH:$GOPATH/bin
+# ------------------------------------------------------------------
+# Conda (Miniforge3 - latest)
+# ------------------------------------------------------------------
+RUN curl -fsSL "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh" -o miniforge.sh \
+    && bash miniforge.sh -b -p /opt/conda \
+    && rm miniforge.sh
+ENV PATH=/opt/conda/bin:$PATH
 
-RUN mkdir /gopath && \
-    go install github.com/tools/godep@latest && \
-    go install github.com/FiloSottile/gvt@latest && \
-    go install github.com/kardianos/govendor@latest && \
-    go clean -cache
-
-#install rvm and glide
-RUN apt-add-repository -y ppa:rael-gc/rvm && \
-    apt -q update && apt install -y rvm && \
-    /usr/share/rvm/bin/rvm install --default $RUBY_VERSION && \
-    apt install -y golang-glide && \
-    rm -rf /var/lib/apt/lists/*
-
-# install trash
-RUN curl -Lo trash.tar.gz https://github.com/rancher/trash/releases/download/v0.2.7/trash-linux_amd64.tar.gz && \
-    tar xvf trash.tar.gz && \
-    rm trash.tar.gz && \
-    mv trash /usr/local/bin/
-
-# install bundler
-RUN bash -lc "gem update --system && gem install bundler"
-
-WORKDIR /tmp
-# Fix the locale
-RUN apt -q update && apt install -y locales && rm -rf /var/lib/apt/lists/*
-RUN locale-gen en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
-
-# install Cargo
-RUN curl https://sh.rustup.rs -sSf | bash -ls -- -y --profile minimal
-
-#install mix
-RUN curl -1sLf 'https://dl.cloudsmith.io/public/rabbitmq/rabbitmq-erlang/setup.deb.sh' | bash
-RUN apt -q update && apt install -y erlang && rm -rf /var/lib/apt/lists/*
-# Install Elixir
-WORKDIR /tmp/elixir-build
-RUN git clone https://github.com/elixir-lang/elixir.git
-WORKDIR elixir
-RUN make && make install
-WORKDIR /
-
-# install conan
-RUN apt -q update && apt install -y python3-dev && rm -rf /var/lib/apt/lists/* && \
-    pip install --no-cache-dir --ignore-installed six --ignore-installed colorama \
-    --ignore-installed requests --ignore-installed chardet \
-    --ignore-installed urllib3 \
-    --upgrade setuptools && \
-    pip3 install --no-cache-dir -Iv conan==1.51.3 && \
-    conan config install https://github.com/conan-io/conanclientcert.git
-
-# install NuGet (w. mono)
-# https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#macoslinux
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF &&\
-    echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | tee /etc/apt/sources.list.d/mono-official-stable.list &&\
-    apt -q update && apt install -y mono-complete && rm -rf /var/lib/apt/lists/* &&\
-    curl -o "/usr/local/bin/nuget.exe" "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" &&\
-    curl -o "/usr/local/bin/nugetv3.5.0.exe" "https://dist.nuget.org/win-x86-commandline/v3.5.0/nuget.exe"
-
-# install dotnet core
-RUN wget -q https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb &&\
-    dpkg -i packages-microsoft-prod.deb &&\
-    rm packages-microsoft-prod.deb &&\
-    apt -q update &&\
-    apt install -y dotnet-sdk-6.0 dotnet-sdk-7.0 &&\
-    rm -rf /var/lib/apt/lists/*
-
-# install Composer
-# The ARG and ENV are for installing tzdata which is part of this installaion.
-# https://serverfault.com/questions/949991/how-to-install-tzdata-on-a-ubuntu-docker-image
-ENV TZ=GMT
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 4F4EA0AAE5267A6C &&\
-    echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu jammy main" | tee /etc/apt/sources.list.d/php.list &&\
-    export DEBIAN_FRONTEND=noninteractive &&\
-    apt -q update && apt install -y php7.4-cli && rm -rf /var/lib/apt/lists/* &&\
-    EXPECTED_COMPOSER_INSTALLER_CHECKSUM="$(curl --silent https://composer.github.io/installer.sig)" &&\
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&\
-    ACTUAL_COMPOSER_INSTALLER_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")" &&\
-    test "${ACTUAL_COMPOSER_INSTALLER_CHECKSUM}" = "${EXPECTED_COMPOSER_INSTALLER_CHECKSUM}" || (echo "ERROR: Invalid installer checksum" >&2; false) &&\
-    php composer-setup.php &&\
-    php -r "unlink('composer-setup.php');" &&\
-    mv composer.phar /usr/bin/composer
-
-# install miniconda
-# See https://docs.conda.io/en/latest/miniconda_hashes.html
-# for latest versions and SHAs.
-RUN  \
-    conda_installer=Miniconda3-py38_4.9.2-Linux-x86_64.sh &&\
-    ref='1314b90489f154602fd794accfc90446111514a5a72fe1f71ab83e07de9504a7' &&\
-    wget -q https://repo.anaconda.com/miniconda/${conda_installer} &&\
-    sha=`openssl sha256 "${conda_installer}" | cut -d' ' -f2` &&\
-    ([ "$sha" = "${ref}" ] || (echo "Verification failed: ${sha} != ${ref}"; false)) &&\
-    (echo; echo "yes") | sh "${conda_installer}"
-
-# install Swift Package Manager
-# Based on https://github.com/apple/swift-docker/blob/main/5.8/ubuntu/22.04/Dockerfile
-# The GPG download steps has been modified. Keys are now on LF repo and copied instaad of downloaded.
-# Refer to https://swift.org/download/#using-downloads in the Linux section on how to download the keys
-RUN apt -q update && apt -q install -y \
-    binutils \
-    git \
-    gnupg2 \
-    libc6-dev \
-    libedit2 \
-    libgcc-9-dev \
-    libcurl4-openssl-dev \
-    libpython3-dev \
-    libsqlite3-0 \
-    libstdc++-9-dev \
-    libxml2-dev \
-    libz3-dev \
-    pkg-config \
-    python3-lldb-13 \
-    tzdata \
-    zlib1g-dev \
-    && rm -r /var/lib/apt/lists/*
-
-# pub   4096R/ED3D1561 2019-03-22 [SC] [expires: 2023-03-23]
-#       Key fingerprint = A62A E125 BBBF BB96 A6E0  42EC 925C C1CC ED3D 1561
-# uid                  Swift 5.x Release Signing Key <swift-infrastructure@swift.org
+# ------------------------------------------------------------------
+# Swift Package Manager
+# ------------------------------------------------------------------
 ARG SWIFT_SIGNING_KEY=A62AE125BBBFBB96A6E042EC925CC1CCED3D1561
-ARG SWIFT_PLATFORM=ubuntu22.04
-ARG SWIFT_BRANCH=swift-5.8-release
-ARG SWIFT_VERSION=swift-5.8-RELEASE
 ARG SWIFT_WEBROOT=https://download.swift.org
-
-ENV SWIFT_SIGNING_KEY=$SWIFT_SIGNING_KEY \
-    SWIFT_PLATFORM=$SWIFT_PLATFORM \
-    SWIFT_BRANCH=$SWIFT_BRANCH \
-    SWIFT_VERSION=$SWIFT_VERSION \
-    SWIFT_WEBROOT=$SWIFT_WEBROOT
-
-COPY swift-all-keys.asc .
-RUN set -e; \
-    SWIFT_WEBDIR="$SWIFT_WEBROOT/$SWIFT_BRANCH/$(echo $SWIFT_PLATFORM | tr -d .)" \
-    && SWIFT_BIN_URL="$SWIFT_WEBDIR/$SWIFT_VERSION/$SWIFT_VERSION-$SWIFT_PLATFORM.tar.gz" \
+COPY swift-all-keys.asc /tmp/swift-all-keys.asc
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        binutils libc6-dev libcurl4-openssl-dev libedit2 \
+        libpython3-dev libsqlite3-0 libxml2-dev libz3-dev \
+        pkg-config tzdata zlib1g-dev libgcc-13-dev libstdc++-13-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && SWIFT_BIN_URL="$SWIFT_WEBROOT/$SWIFT_BRANCH/$(echo $SWIFT_PLATFORM | tr -d .)/$SWIFT_VERSION/$SWIFT_VERSION-$SWIFT_PLATFORM.tar.gz" \
     && SWIFT_SIG_URL="$SWIFT_BIN_URL.sig" \
-    # - Grab curl here so we cache better up above
-    && export DEBIAN_FRONTEND=noninteractive \
-    && apt -q update && apt -q install -y curl && rm -rf /var/lib/apt/lists/* \
-    # - Download the GPG keys, Swift toolchain, and toolchain signature, and verify.
     && export GNUPGHOME="$(mktemp -d)" \
-    && curl -fsSL "$SWIFT_BIN_URL" -o swift.tar.gz "$SWIFT_SIG_URL" -o swift.tar.gz.sig \
-    && gpg --import swift-all-keys.asc \
-    && gpg --batch --verify swift.tar.gz.sig swift.tar.gz \
-    # - Unpack the toolchain, set libs permissions, and clean up.
-    && tar -xzf swift.tar.gz --directory / --strip-components=1 \
-    && chmod -R o+r /usr/lib/swift \
-    && rm -rf "$GNUPGHOME" swift.tar.gz.sig swift.tar.gz \
-    set +e
+    && (curl -fsSL "$SWIFT_BIN_URL" -o swift.tar.gz \
+        && curl -fsSL "$SWIFT_SIG_URL" -o swift.tar.gz.sig \
+        && gpg --import /tmp/swift-all-keys.asc \
+        && gpg --batch --verify swift.tar.gz.sig swift.tar.gz \
+        && tar -xzf swift.tar.gz --directory / --strip-components=1 \
+        && chmod -R o+r /usr/lib/swift) \
+    && rm -rf "$GNUPGHOME" swift.tar.gz swift.tar.gz.sig /tmp/swift-all-keys.asc
 
-# install flutter
-ENV FLUTTER_HOME=/root/flutter
-RUN git config --global --add safe.directory /root/flutter
-RUN curl -o flutter_linux_2.8.1-stable.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_2.8.1-stable.tar.xz \
-    && tar xf flutter_linux_2.8.1-stable.tar.xz \
-    && mv flutter ${FLUTTER_HOME} \
-    && rm flutter_linux_2.8.1-stable.tar.xz
-
+# ------------------------------------------------------------------
+# Flutter
+# ------------------------------------------------------------------
+ENV FLUTTER_HOME=/opt/flutter
+RUN curl -fsSL "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -o /tmp/flutter.tar.xz \
+    && mkdir -p /opt && tar -xf /tmp/flutter.tar.xz -C /opt \
+    && rm /tmp/flutter.tar.xz \
+    && git config --global --add safe.directory ${FLUTTER_HOME}
 ENV PATH=$PATH:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
-RUN flutter doctor -v \
-    && flutter update-packages \
+RUN flutter config --no-analytics \
     && flutter precache
-# Accepting all licences
-RUN yes | flutter doctor --android-licenses -v
-# Creating Flutter sample projects to put binaries in cache fore each template type
-RUN flutter create --template=app ${TEMP}/app_sample \
-    && flutter create --template=package ${TEMP}/package_sample \
-    && flutter create --template=plugin ${TEMP}/plugin_sample
 
-# install license_finder
-COPY . /LicenseFinder
-RUN bash -lc "cd /LicenseFinder && bundle config set no-cache 'true' && bundle install -j4 && bundle pristine && rake install"
+# ------------------------------------------------------------------
+# Ruby via rbenv + ruby-build
+# ------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        autoconf bison libssl-dev libyaml-dev libreadline-dev \
+        zlib1g-dev libncurses5-dev libffi-dev libgdbm-dev \
+        libdb-dev uuid-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && git clone --depth=1 https://github.com/rbenv/rbenv.git /opt/rbenv \
+    && git clone --depth=1 https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
+ENV PATH=/opt/rbenv/bin:/opt/rbenv/shims:$PATH
+RUN /opt/rbenv/bin/rbenv install ${RUBY_VERSION} \
+    && /opt/rbenv/bin/rbenv global ${RUBY_VERSION} \
+    && /opt/rbenv/shims/gem update --system --no-document \
+    && /opt/rbenv/shims/gem install --no-document bundler
+
+# ------------------------------------------------------------------
+# Trash (Rancher) - legacy Go vendoring
+# ------------------------------------------------------------------
+RUN curl -fsSL https://github.com/rancher/trash/releases/download/v0.2.7/trash-linux_amd64.tar.gz -o /tmp/trash.tar.gz \
+    && tar -xzf /tmp/trash.tar.gz -C /usr/local/bin trash \
+    && rm /tmp/trash.tar.gz
+
+# ------------------------------------------------------------------
+# Install license_finder itself
+# ------------------------------------------------------------------
+COPY . /licensefinder
+WORKDIR /licensefinder
+RUN bash -lc "bundle config set no-cache 'true' && bundle install -j4 && bundle pristine && rake install"
 
 WORKDIR /
-
-CMD cd /scan && /bin/bash -l
+CMD ["/bin/bash", "-l", "-c", "cd /scan && /bin/bash -l"]

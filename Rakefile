@@ -14,7 +14,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 namespace :features do
-  desc 'Run test tagged \'focus\''
+  desc 'Run tests tagged "focus"'
   RSpec::Core::RakeTask.new(:focus) do |t|
     t.fail_on_error = true
     t.pattern = './features/**/*_spec.rb'
@@ -44,30 +44,11 @@ task :check_dependencies do
   exit 1 unless satisfied
 end
 
-desc 'Configure LF and LF PR pipeline'
-task :update_pipeline, [:slack_url, :slack_channel] do |_, args|
-  slack_url = args[:slack_url]
-  slack_channel = args[:slack_channel]
-
-  unless slack_url || slack_channel
-    puts 'Warning: skipping slack notifications setup'
-    puts 'Warning: You should provide slack channel and url to receive slack notifications on build failures'
-  end
-
-  ruby_versions = %w[3.3.0 3.2.3 3.1.4 2.7.8]
-
-  params = []
-  params << "ruby_versions=#{ruby_versions.join(',')}"
-  params << "slack_url=#{slack_url}" if slack_url
-  params << "slack_channel=#{slack_channel}" if slack_channel
-
-  vars = params.join(' ')
-
-  cmd = "bash -c \"fly -t osl set-pipeline -n -p LicenseFinder --config <(erb #{vars} ci/pipelines/release.yml.erb)\""
-  system(cmd)
-
-  cmd = "bash -c \"fly -t osl set-pipeline -n -p LicenseFinder-pr --config <(erb #{vars} ci/pipelines/pull-request.yml.erb)\""
-  system(cmd)
+begin
+  require 'rubocop/rake_task'
+  RuboCop::RakeTask.new
+rescue LoadError
+  # rubocop is a development dependency; ignore if not installed
 end
 
 task default: %i[spec features]

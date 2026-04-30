@@ -3,36 +3,14 @@
 version = File.read(File.expand_path('VERSION', __dir__)).strip
 
 Gem::Specification.new do |s|
-  s.required_ruby_version = '>= 2.6.0'
+  s.required_ruby_version = '>= 3.1.0'
   s.name        = 'license_finder'
   s.version     = version
 
-  s.authors = [
-    'Ryan Collins',
-    'Daniil Kouznetsov',
-    'Andy Shen',
-    'Shane Lattanzio',
-    'Li Sheng Tai',
-    'Vlad vassilovski',
-    'Jacob Maine',
-    'Matthew Kane Parker',
-    'Ian Lesperance',
-    'David Edwards',
-    'Paul Meskers',
-    'Brent Wheeldon',
-    'Trevor John',
-    'David Tengdin',
-    'William Ramsey',
-    'David Dening',
-    'Geoff Pleiss',
-    'Mike Chinigo',
-    'Mike Dalessio',
-    'Jeff Jun'
-  ]
-
-  s.email       = ['labs-commoncode@pivotal.io']
-  s.homepage    = 'https://github.com/pivotal/LicenseFinder'
-  s.summary     = "Audit the OSS licenses of your application's dependencies."
+  s.authors = ['Abhishek Garg']
+  s.email   = ['abhishekgarg@users.noreply.github.com']
+  s.homepage = 'https://github.com/abhishekgarg/licensefinder'
+  s.summary  = "Audit the OSS licenses of your application's dependencies."
 
   s.description = <<-DESCRIPTION
     LicenseFinder works with your package managers to find
@@ -43,33 +21,40 @@ Gem::Specification.new do |s|
 
   s.license = 'MIT'
 
+  s.metadata = {
+    'bug_tracker_uri'   => 'https://github.com/abhishekgarg/licensefinder/issues',
+    'changelog_uri'     => 'https://github.com/abhishekgarg/licensefinder/blob/main/CHANGELOG.md',
+    'documentation_uri' => 'https://github.com/abhishekgarg/licensefinder/blob/main/README.md',
+    'homepage_uri'      => 'https://github.com/abhishekgarg/licensefinder',
+    'source_code_uri'   => 'https://github.com/abhishekgarg/licensefinder',
+    'rubygems_mfa_required' => 'true'
+  }
+
   s.add_dependency 'bundler'
-  s.add_dependency 'csv', '~> 3.2'
-  s.add_dependency 'rubyzip', '>=1', '<3'
-  s.add_dependency 'thor', '~> 1.2'
+  s.add_dependency 'csv', '~> 3.3'
+  s.add_dependency 'rubyzip', '>= 2.3', '< 3'
+  s.add_dependency 'thor', '~> 1.3'
   s.add_dependency 'tomlrb', '>= 1.3', '< 2.1'
-  s.add_dependency 'with_env', '1.1.0'
-  s.add_dependency 'xml-simple', '~> 1.1.9'
+  s.add_dependency 'with_env', '~> 1.1'
+  s.add_dependency 'xml-simple', '~> 1.1', '>= 1.1.9'
 
-  s.add_development_dependency 'addressable', '2.8.6'
-  s.add_development_dependency 'capybara', '~> 3.39.2'
-  s.add_development_dependency 'cocoapods', '>= 1.0.0' if RUBY_PLATFORM.match?(/darwin/)
-  s.add_development_dependency 'e2mmap', '~> 0.1.0'
-  s.add_development_dependency 'fakefs', '~> 2.5.0'
-  s.add_development_dependency 'matrix', '~> 0.4.2'
-  s.add_development_dependency 'mime-types', '3.5.2'
-  s.add_development_dependency 'pry', '~> 0.14.1'
-  s.add_development_dependency 'rake', '~> 13.1.0'
-  s.add_development_dependency 'rspec', '~> 3'
-  s.add_development_dependency 'rspec-its', '~> 1.3.0'
-  s.add_development_dependency 'rubocop', '~> 1.60.2'
-  s.add_development_dependency 'rubocop-performance', '~> 1.20.2'
-  s.add_development_dependency 'webmock', '~> 3.14'
+  s.add_development_dependency 'addressable',  '~> 2.8'
+  s.add_development_dependency 'capybara',     '~> 3.40'
+  s.add_development_dependency 'cocoapods',    '>= 1.15' if RUBY_PLATFORM.match?(/darwin/)
+  s.add_development_dependency 'fakefs',       '~> 2.5'
+  s.add_development_dependency 'mime-types',   '~> 3.6'
+  s.add_development_dependency 'pry',          '~> 0.14'
+  s.add_development_dependency 'rake',         '~> 13.2'
+  s.add_development_dependency 'rspec',        '~> 3.13'
+  s.add_development_dependency 'rspec-its',    '~> 1.3'
+  s.add_development_dependency 'rubocop',      '~> 1.66'
+  s.add_development_dependency 'rubocop-performance', '~> 1.22'
+  s.add_development_dependency 'webmock',      '~> 3.23'
 
-  s.add_development_dependency 'nokogiri', '~>1.10'
-  s.add_development_dependency 'rack', '~> 3.0.0'
-  s.add_development_dependency 'rack-test', '> 0.7', '~> 2.1.0'
+  s.add_development_dependency 'nokogiri',  '~> 1.16'
+  s.add_development_dependency 'rack',      '~> 3.1'
+  s.add_development_dependency 'rack-test', '~> 2.1'
 
-  s.files         = `git ls-files`.split("\n").reject { |f| f.start_with?('spec', 'features') }
-  s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
+  s.files       = `git ls-files`.split("\n").reject { |f| f.start_with?('spec', 'features') }
+  s.executables = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
 end
