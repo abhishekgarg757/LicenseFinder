@@ -33,7 +33,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            abhishekgarg/licensefinder
+            abhishekgarg757/licensefinder
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
