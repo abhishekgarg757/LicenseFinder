@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # licensefinder all-in-one image. Provides Ruby + every supported
 # package manager so that `license_finder` can scan any project.
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 LABEL org.opencontainers.image.title="licensefinder" \
       org.opencontainers.image.description="Audit the OSS licenses of your application's dependencies." \
