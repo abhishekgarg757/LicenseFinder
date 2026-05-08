@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1](https://github.com/abhishekgarg757/LicenseFinder/compare/v1.0.0...v1.0.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* use correct GitHub/Docker Hub username (abhishekgarg757) ([536f15c](https://github.com/abhishekgarg757/LicenseFinder/commit/536f15c55f4348bc84f7fef635f3a43c3cff0ca0))
+
 ## [1.0.0] - 2026-04-30
 
 First release of `licensefinder` under the new maintainer
