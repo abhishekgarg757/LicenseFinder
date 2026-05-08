@@ -52,6 +52,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------------
+# .NET SDK (available natively in Ubuntu 24.04 repos)
+# ------------------------------------------------------------------
+RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh \
+    && chmod +x dotnet-install.sh \
+    && ./dotnet-install.sh --channel ${DOTNET_CHANNEL} --install-dir /usr/share/dotnet \
+    && ln -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet \
+    && rm dotnet-install.sh
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH=$PATH:/usr/share/dotnet
+
+# ------------------------------------------------------------------
 # Node.js (NodeSource), Yarn, pnpm, Bower
 # ------------------------------------------------------------------
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
@@ -138,16 +149,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
 ENV PATH=/root/.cargo/bin:$PATH
 
-# ------------------------------------------------------------------
-# .NET SDK (available natively in Ubuntu 24.04 repos)
-# ------------------------------------------------------------------
-RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb \
-        -o packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends dotnet-sdk-${DOTNET_CHANNEL} \
-    && rm -rf /var/lib/apt/lists/*
+
 
 # nuget.exe via mono (mono-complete may be unavailable on noble; install runtime)
 RUN apt-get update && apt-get install -y --no-install-recommends mono-runtime mono-devel ca-certificates-mono \
