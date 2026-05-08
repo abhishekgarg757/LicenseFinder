@@ -2,5 +2,5 @@
 
 module LicenseFinder
   root    = File.expand_path('../..', __dir__)
-  VERSION = File.read("#{root}/VERSION").strip
+  VERSION = File.read("#{root}/version.txt").strip
 end

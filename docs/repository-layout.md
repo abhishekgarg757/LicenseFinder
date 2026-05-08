@@ -14,7 +14,7 @@ A guided tour of every top-level entry.
 | [`NOTICE`](../NOTICE) | Attribution to upstream contributors |
 | [`SECURITY.md`](../SECURITY.md) | Vulnerability disclosure policy |
 | [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) | Contributor Covenant pointer |
-| [`VERSION`](../VERSION) | Single source of truth for the gem version |
+| [`version.txt`](../version.txt) | Single source of truth for the gem version |
 | [`license_finder.gemspec`](../license_finder.gemspec) | Gem metadata + dependencies |
 | [`Gemfile`](../Gemfile) | Just sources the gemspec |
 | [`Rakefile`](../Rakefile) | Defines `spec`, `features`, `rubocop`, `check_dependencies` |

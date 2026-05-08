@@ -16,7 +16,7 @@ Releases are fully automated via
    `main`. The PR title looks like `chore(main): release X.Y.Z` and
    contains:
    - Updated `CHANGELOG.md` with grouped commit messages
-   - Bumped `VERSION` file
+   - Bumped `version.txt`
 
 3. **Merge the release PR** when ready. Release Please then:
    - Creates a `vX.Y.Z` Git tag
@@ -34,7 +34,7 @@ You can still cut a release manually if needed:
 ```bash
 git checkout main
 git pull
-# Edit VERSION and CHANGELOG.md
+# Edit version.txt and CHANGELOG.md
 git commit -am "chore(release): X.Y.Z"
 git tag -a vX.Y.Z -m "vX.Y.Z"
 git push origin main
@@ -49,4 +49,4 @@ git push origin vX.Y.Z
 | New package manager / license / report format | minor |
 | Removes a package manager, changes CLI flags, bumps minimum Ruby | major |
 2. Apply fix + test + CHANGELOG entry.
-3. Bump VERSION, commit, merge to `main` (or fast-forward), tag and push.
+3. Bump `version.txt`, commit, merge to `main` (or fast-forward), tag and push.

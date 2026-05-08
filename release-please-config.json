@@ -4,7 +4,7 @@
       "release-type": "simple",
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": true,
-      "extra-files": ["VERSION"],
+
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": false
     }

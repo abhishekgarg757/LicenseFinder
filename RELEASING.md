@@ -2,7 +2,7 @@
 
 Releases are cut from `main`.
 
-1. Bump the version in [`VERSION`](VERSION) following SemVer.
+1. Bump the version in [`version.txt`](version.txt) following SemVer.
 2. Add an entry to [`CHANGELOG.md`](CHANGELOG.md) under a new
    `## [X.Y.Z] - YYYY-MM-DD` heading.
 3. Commit, tag and push:

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-version = File.read(File.expand_path('VERSION', __dir__)).strip
+version = File.read(File.expand_path('version.txt', __dir__)).strip
 
 Gem::Specification.new do |s|
   s.required_ruby_version = '>= 3.1.0'

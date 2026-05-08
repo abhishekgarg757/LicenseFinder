@@ -20,9 +20,7 @@ jobs:
         id: release
         with:
           release-type: simple
-          # Reads version from VERSION file
-          extra-files: |
-            VERSION
+          # version.txt is the default for release-type: simple
           changelog-types: >
             [
               {"type":"feat","section":"Added","hidden":false},
