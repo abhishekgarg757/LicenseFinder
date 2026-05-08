@@ -23,14 +23,37 @@ Builds and pushes images to Docker Hub. See [docker.md](docker.md).
 
 ### `release-gem.yml`
 
-Currently **disabled** (only `workflow_dispatch` is active). To
-re-enable, uncomment the `push: tags:` block. Requires either:
+Triggers on `v*.*.*` tag pushes (created automatically by Release
+Please) or manual `workflow_dispatch`. Requires either:
 
 * Trusted Publishing configured at
   <https://rubygems.org/gems/<your-gem>/trusted_publishers>, **or**
 * a `RUBYGEMS_API_KEY` repository secret.
 
 See [release-process.md](release-process.md).
+
+### `release-please.yml`
+
+Runs on every push to `main`. Uses
+[Release Please](https://github.com/googleapis/release-please) to:
+
+* Detect conventional commits (`feat:`, `fix:`, `chore:`, etc.)
+* Open a release PR that bumps `VERSION`, updates `CHANGELOG.md`
+* When the release PR is merged, creates a Git tag (`vX.Y.Z`) and a
+  GitHub Release — which in turn triggers `release-gem.yml` and
+  `docker-publish.yml`.
+
+### `dependabot-auto-merge.yml`
+
+Runs on every PR from Dependabot. Automatically approves and
+squash-merges patch and minor dependency updates once CI passes.
+Major version bumps still require manual review.
+
+### `stale.yml`
+
+Runs weekly (Monday 06:30 UTC). Marks issues and PRs as stale after
+60 days of inactivity, closes them after 14 more days. Issues labelled
+`pinned`, `security`, or `bug` are exempt.
 
 ## Required secrets
 
@@ -45,9 +68,13 @@ See [release-process.md](release-process.md).
 [`.github/dependabot.yml`](../.github/dependabot.yml) opens weekly PRs
 for:
 
-* Bundler dependencies (the gemspec)
+* Bundler dependencies (the gemspec) — grouped into dev and production
 * Docker base image (`Dockerfile`'s `FROM` line)
-* GitHub Actions versions
+* GitHub Actions versions — grouped into a single PR
+
+Patch and minor updates are auto-approved and auto-merged by the
+`dependabot-auto-merge.yml` workflow. Major updates require manual
+review.
 
 ## Branch protection (recommended)
 

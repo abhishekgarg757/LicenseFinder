@@ -6,10 +6,13 @@ Routine work needed to keep the project healthy.
 
 * Triage incoming issues / PRs.
 * Review Dependabot PRs:
-  - Bundler bumps: merge if CI is green.
+  - **Patch / minor** updates are auto-approved and auto-merged by the
+    `dependabot-auto-merge.yml` workflow — no action needed if CI is
+    green.
+  - **Major** bumps still require manual review.
   - Docker base image: trigger a manual `docker-publish` run after
     merging.
-  - Actions versions: usually safe to merge.
+  - Actions versions: usually safe to merge (auto-merged by default).
 
 ## Monthly
 

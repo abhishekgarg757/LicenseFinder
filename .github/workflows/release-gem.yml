@@ -1,10 +1,9 @@
 name: Release gem
 
-# Disabled until RubyGems account setup is complete.
-# Uncomment the triggers below when ready.
+# Triggered automatically when Release Please creates a tag, or manually.
 on:
-  # push:
-  #   tags: [ 'v*.*.*' ]
+  push:
+    tags: [ 'v*.*.*' ]
   workflow_dispatch:
 
 jobs:
