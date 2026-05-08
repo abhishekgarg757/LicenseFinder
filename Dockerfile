@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # licensefinder all-in-one image. Provides Ruby + every supported
 # package manager so that `license_finder` can scan any project.
-FROM ubuntu:26.04
+FROM ubuntu:24.04
 
 LABEL org.opencontainers.image.title="licensefinder" \
       org.opencontainers.image.description="Audit the OSS licenses of your application's dependencies." \
@@ -37,7 +37,6 @@ WORKDIR /tmp
 RUN apt-get update && apt-get install -y --no-install-recommends \
         apt-transport-https \
         apt-utils \
-        bzr \
         build-essential \
         ca-certificates \
         curl \
@@ -140,9 +139,13 @@ RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-to
 ENV PATH=/root/.cargo/bin:$PATH
 
 # ------------------------------------------------------------------
-# .NET SDK (available natively in Ubuntu 26.04 repos)
+# .NET SDK (available natively in Ubuntu 24.04 repos)
 # ------------------------------------------------------------------
-RUN apt-get update \
+RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb \
+        -o packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb \
+    && apt-get update \
     && apt-get install -y --no-install-recommends dotnet-sdk-${DOTNET_CHANNEL} \
     && rm -rf /var/lib/apt/lists/*
 
