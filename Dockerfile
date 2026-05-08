@@ -22,7 +22,7 @@ ENV RUBY_VERSION=3.3.5 \
     GRADLE_VERSION=8.10.2 \
     SBT_VERSION=1.10.2 \
     JDK_MAJOR=21 \
-    DOTNET_CHANNEL=8.0 \
+    DOTNET_CHANNEL=9.0 \
     FLUTTER_VERSION=3.24.3 \
     SWIFT_VERSION=swift-5.10.1-RELEASE \
     SWIFT_BRANCH=swift-5.10.1-release \
@@ -140,12 +140,9 @@ RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-to
 ENV PATH=/root/.cargo/bin:$PATH
 
 # ------------------------------------------------------------------
-# .NET SDK (NuGet via mono)
+# .NET SDK (available natively in Ubuntu 26.04 repos)
 # ------------------------------------------------------------------
-RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -o /tmp/ms.deb \
-    && dpkg -i /tmp/ms.deb \
-    && rm /tmp/ms.deb \
-    && apt-get update \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends dotnet-sdk-${DOTNET_CHANNEL} \
     && rm -rf /var/lib/apt/lists/*
 
